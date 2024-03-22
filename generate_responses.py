@@ -229,6 +229,7 @@ def process_data(dataset, ctx, nsamples):
 
 
 context = get_context(args.prompt)
+print(f"Context:\n{context}\n")
 prompt_que, orig_que, topics, subtopics = process_data(dataset, context, num_samples)
 
 
