@@ -85,7 +85,7 @@ else:
     from transformers import AutoModelForCausalLM
     import torch
 
-    tokenizer = AutoTokenizer.from_pretrained(model_name)
+    tokenizer = AutoTokenizer.from_pretrained(model_name, padding_side='left')
 
     if not tokenizer.pad_token:
         tokenizer.pad_token = tokenizer.unk_token
