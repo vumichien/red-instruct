@@ -65,7 +65,6 @@ def chat_completion(system, prompt):
         try:
             stream = client.chat.completions.create(
               model="gpt-4-0125-preview",
-              engine="GPT4",
               messages=[
                     {"role": "system", "content": system},
                     {"role": "user", "content": prompt},
