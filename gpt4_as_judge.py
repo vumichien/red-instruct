@@ -62,7 +62,7 @@ def chat_completion(system, prompt):
     for _ in range(API_MAX_RETRY):
         try:    
             response = openai.ChatCompletion.create(
-              model="gpt-4",
+              model="gpt-4-0125-preview",
               engine="GPT4",
               messages=[
                     {"role": "system", "content": system},
