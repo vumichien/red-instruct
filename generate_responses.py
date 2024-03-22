@@ -85,7 +85,7 @@ else:
     from transformers import AutoModelForCausalLM
     import torch
 
-    tokenizer = AutoTokenizer.from_pretrained(model_name, padding_side="right", use_fast=False)
+    tokenizer = AutoTokenizer.from_pretrained(model_name)
 
     if not tokenizer.pad_token:
         tokenizer.pad_token = tokenizer.unk_token
@@ -100,7 +100,7 @@ else:
         bnb_4bit_compute_dtype=torch.float16
     )
     # model = AutoModelForCausalLM.from_pretrained(model_name, device_map="auto", load_in_8bit=load_in_8bit)
-    model = AutoModelForCausalLM.from_pretrained(args.base_model, quantization_config=bnb_config,
+    model = AutoModelForCausalLM.from_pretrained(model_name, quantization_config=bnb_config,
                                                  low_cpu_mem_usage=True, device_map={"": 0})
     model.eval()
 
