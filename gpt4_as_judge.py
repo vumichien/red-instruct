@@ -25,7 +25,7 @@ key_path = f'api_keys/gpt4_api_key.json'
 with open(key_path, 'r') as f:
     keys = json.load(f)   
 client = OpenAI(
-    # Defaults to os.environ.get("OPENAI_API_KEY")
+    api_key=keys['api_key']
 )
 # openai.api_type = keys['api_type']
 # openai.api_base = keys['api_base']
