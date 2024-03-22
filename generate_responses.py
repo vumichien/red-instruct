@@ -248,7 +248,7 @@ print("generating responses...\n")
 for i in tqdm(range(len(prompt_que))):
 
     inputs = prompt_que[i]
-
+    print(inputs)
     if 'gpt' in model_name:
         response = chat_completion_gpt(system=system_message, prompt=inputs)
 
