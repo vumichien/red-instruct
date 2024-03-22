@@ -81,8 +81,9 @@ elif 'claude' in model_name:
 
 else:
 
-    from transformers import AutoModelForCausalLM, AutoTokenizer
+    from transformers import AutoModelForCausalLM, AutoTokenizer, BitsAndBytesConfig
     from transformers import AutoModelForCausalLM
+    import torch
 
     tokenizer = AutoTokenizer.from_pretrained(model_name, padding_side="right", use_fast=False)
 
@@ -91,8 +92,17 @@ else:
 
     if load_in_8bit:
         print("\n\n***loading model in 8 bits***\n\n")
-        
-    model = AutoModelForCausalLM.from_pretrained(model_name, device_map="auto", load_in_8bit=load_in_8bit)
+
+    bnb_config = BitsAndBytesConfig(
+        load_in_4bit=True,
+        bnb_4bit_use_double_quant=False,
+        bnb_4bit_quant_type="nf4",
+        bnb_4bit_compute_dtype=torch.float16
+    )
+    # model = AutoModelForCausalLM.from_pretrained(model_name, device_map="auto", load_in_8bit=load_in_8bit)
+    model = AutoModelForCausalLM.from_pretrained(args.base_model, quantization_config=bnb_config,
+                                                 low_cpu_mem_usage=True, device_map={"": 0})
+    model.eval()
 
 
 ##define chat completion function for GPT##
