@@ -71,7 +71,7 @@ def chat_completion(system, prompt):
                 ]
             )
             print(stream)
-            response = stream['choices'][0]['message']['content']
+            response = stream.choices[0].message.content
             count = response.count('[[A]]')+response.count('[[B]]')
             if count > 1 or count < 1:
                 print('--More (or less) than one tags--')
