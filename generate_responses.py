@@ -261,7 +261,7 @@ for i in tqdm(range(len(prompt_que))):
 
     else:
         # inputs = tokenizer([inputs], return_tensors="pt", truncation=False, padding=True, add_special_tokens=False).to("cuda")
-        inputs = tokenizer(prompt, return_tensors="pt")
+        inputs = tokenizer(inputs, return_tensors="pt")
         input_ids = inputs["input_ids"].to("cuda")
         # generated_ids = model.generate(input_ids=inputs['input_ids'], attention_mask=inputs['attention_mask'],
         #                                max_new_tokens=500)
@@ -284,7 +284,7 @@ for i in tqdm(range(len(prompt_que))):
     response = response.replace("<s> [INST]", "<s>[INST]")
     # response = response.split("### Response:")[1].strip()
     question2 = question2.replace("<s> [INST]", "<s>[INST]")
-    response = response.replace(question2,"").strip()
+    response = response.replace(question2, "").strip()
 
     if clean_thoughts:
         response = clean_thought(response)
