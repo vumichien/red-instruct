@@ -83,8 +83,10 @@ else:
 
     from transformers import AutoModelForCausalLM, AutoTokenizer, BitsAndBytesConfig
     from transformers import AutoModelForCausalLM
+    from transformers.utils import logging
     import torch
 
+    logging.get_logger("transformers").setLevel(logging.ERROR)
     tokenizer = AutoTokenizer.from_pretrained(model_name, padding_side='left')
 
     if not tokenizer.pad_token:
