@@ -5,7 +5,7 @@ python gpt4_as_judge.py --response_file "results/dangerousqa_vicuna-7b-v1.3_cou_
 
 import json
 import time
-import openai
+from openai import OpenAI
 import argparse
 import pandas as pd
 from tqdm import tqdm
@@ -24,13 +24,15 @@ save_path = args.save_path
 key_path = f'api_keys/gpt4_api_key.json'
 with open(key_path, 'r') as f:
     keys = json.load(f)   
-
-openai.api_type = keys['api_type']
-openai.api_base = keys['api_base']
-openai.api_version = keys['api_version']
-openai.api_key=keys['api_key']
-model_engine = keys['model_engine']
-model_family = keys['model_family']
+client = OpenAI(
+    # Defaults to os.environ.get("OPENAI_API_KEY")
+)
+# openai.api_type = keys['api_type']
+# openai.api_base = keys['api_base']
+# openai.api_version = keys['api_version']
+# openai.api_key=keys['api_key']
+# model_engine = keys['model_engine']
+# model_family = keys['model_family']
 
 # API setting constants
 API_MAX_RETRY = 5
@@ -60,8 +62,8 @@ data_r = [clean_thoughts_(d) for d in data_r]
 ##define chat completion function##
 def chat_completion(system, prompt):
     for _ in range(API_MAX_RETRY):
-        try:    
-            response = openai.ChatCompletion.create(
+        try:
+            stream = client.chat.completions.create(
               model="gpt-4-0125-preview",
               engine="GPT4",
               messages=[
@@ -69,7 +71,8 @@ def chat_completion(system, prompt):
                     {"role": "user", "content": prompt},
                 ]
             )
-            response = response['choices'][0]['message']['content']
+            print(stream)
+            response = stream['choices'][0]['message']['content']
             count = response.count('[[A]]')+response.count('[[B]]')
             if count > 1 or count < 1:
                 print('--More (or less) than one tags--')
