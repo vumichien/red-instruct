@@ -280,7 +280,8 @@ for i in tqdm(range(len(prompt_que))):
     
     #cleaning response
     #breakpoint()
-    response = response.split("### Response:")[1].strip()
+    response = response.replace("<s> [INST]", "<s>[INST]")
+    # response = response.split("### Response:")[1].strip()
     question2 = question2.replace("<s> [INST]", "<s>[INST]")
     response = response.replace(question2,"").strip()
 
