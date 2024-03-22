@@ -85,6 +85,7 @@ else:
     from transformers import AutoModelForCausalLM
     from transformers.utils import logging
     import torch
+    import sys
 
     logging.get_logger("transformers").setLevel(logging.ERROR)
     tokenizer = AutoTokenizer.from_pretrained(model_name, padding_side='left')
@@ -105,6 +106,8 @@ else:
     model = AutoModelForCausalLM.from_pretrained(model_name, quantization_config=bnb_config,
                                                  low_cpu_mem_usage=True, device_map={"": 0})
     model.eval()
+    if torch.__version__ >= "2" and sys.platform != "win32":
+        model = torch.compile(model)
 
 
 ##define chat completion function for GPT##
@@ -189,9 +192,9 @@ def gen_prompt(q, ctx):
     prompt = ctx.replace('<question>', q.strip())
 
     #open-source models, apply chat template
-    if tokenizer:
-        prompt = [{"role": "user", "content": prompt}]
-        prompt = tokenizer.apply_chat_template(prompt, tokenize=False)
+    # if tokenizer:
+    #     prompt = [{"role": "user", "content": prompt}]
+    #     prompt = tokenizer.apply_chat_template(prompt, tokenize=False)
 
     return prompt
 
@@ -256,16 +259,28 @@ for i in tqdm(range(len(prompt_que))):
         response = chat_completion_claude(system=system_message, prompt=inputs)
 
     else:
-        inputs = tokenizer([inputs], return_tensors="pt", truncation=False, padding=True, add_special_tokens=False).to("cuda")
-        generated_ids = model.generate(input_ids=inputs['input_ids'], attention_mask=inputs['attention_mask'], max_new_tokens=500)
-        response = tokenizer.batch_decode(generated_ids, skip_special_tokens=False)[0]
+        # inputs = tokenizer([inputs], return_tensors="pt", truncation=False, padding=True, add_special_tokens=False).to("cuda")
+        inputs = tokenizer(prompt, return_tensors="pt")
+        input_ids = inputs["input_ids"].to("cuda")
+        # generated_ids = model.generate(input_ids=inputs['input_ids'], attention_mask=inputs['attention_mask'],
+        #                                max_new_tokens=500)
+        with torch.no_grad():
+            generation_output = model.generate(
+                input_ids=input_ids,
+                return_dict_in_generate=True,
+                output_scores=True,
+                max_new_tokens=500,
+            )
+        s = generation_output.sequences[0]
+        response = tokenizer.decode(s, skip_special_tokens=True)
+        # response = tokenizer.batch_decode(generated_ids, skip_special_tokens=False)[0]
 
     question = orig_que[i]
     question2 = prompt_que[i]
     
     #cleaning response
     #breakpoint()
-    response = response.replace("<s> [INST]", "<s>[INST]")
+    response = response.split("### Response:")[1].strip()
     question2 = question2.replace("<s> [INST]", "<s>[INST]")
     response = response.replace(question2,"").strip()
 
